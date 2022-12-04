@@ -2,15 +2,18 @@ from flask import Flask
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import JSON
+from config import BaseConfig
 import os
 
 app = Flask(__name__)
 api = Api(app)
 db = SQLAlchemy(app)
+app.config.from_object(BaseConfig)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:data1@localhost/track_detection'
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:data1@localhost/track_detection'
+#app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+
 
 class Track(db.Model):
     __tablename__ = 'events' 
