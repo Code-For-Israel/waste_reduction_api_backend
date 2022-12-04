@@ -26,9 +26,14 @@
 sudo apt-get -y update
 
 # postgresql
-sudo apt update
 sudo apt install postgresql postgresql-contrib
 sudo apt-get -y install python-psycopg2
 sudo apt-get -y install libpq-dev
 sudo systemctl start postgresql.service
+
+# python
+cd waste_reduction_api_backend
+pip3 install -r requirements.txt 
+
+python3 api.py
 ```
