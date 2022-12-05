@@ -1,5 +1,7 @@
-# waste_reduction_api_backend
-
+# Waste Reduction Backend
+This repo includes:
+1. Python Flask backend server used to get information from the inference server, process and store the data in PostgreSQL
+2. Dockerfiles & docker-compose configurations for easy launch of the backend including all dependencies
 
 
 # Launch an instance in AWS
@@ -35,5 +37,5 @@ sudo systemctl start postgresql.service
 cd waste_reduction_api_backend
 pip3 install -r requirements.txt 
 
-python3 api.py
+python3 run.py
 ```

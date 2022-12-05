@@ -16,8 +16,8 @@ services:
       - postgres_user
       - postgres_password
     environment:
-      DEBUG: False
-      POSTGRES_DB: db
+      DOCKER: True
+      POSTGRES_DB: WasteReduction
       DATABASE_PORT: 5432
       POSTGRES_USER_FILE: /run/secrets/postgres_user
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
@@ -26,7 +26,7 @@ services:
     depends_on:
       - postgres
     command: >
-      sh -c "python3 ./api.py"
+      sh -c "python3 ./run.py"
 
   postgres:
     restart: always
@@ -36,11 +36,8 @@ services:
     secrets:
       - postgres_user
       - postgres_password
-    secrets:
-      - postgres_user
-      - postgres_password
     environment:
-      POSTGRES_DB: db
+      POSTGRES_DB: WasteReduction
       POSTGRES_USER_FILE: /run/secrets/postgres_user
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
     expose:
