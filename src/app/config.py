@@ -15,7 +15,7 @@ if "DOCKER" in os.environ:
 
 else:
     _db_user = 'postgres'
-    _db_pass = 'admin'
+    _db_pass = 'data1'
     _db_host = 'localhost'
 
 ## Building the DB connection string
