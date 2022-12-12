@@ -1,7 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import JSON, Date, String, Float
-from flask_migrate import Migrate
-
 db = SQLAlchemy()
 
 

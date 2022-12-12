@@ -1,8 +1,0 @@
-{
-    "image_id": "image00000001D11_11_2022T15_55_29",
-    "detections_result":{
-        "classes": ["other","cover"],
-        "probabilities": [0.9999999999999999, 0.5],
-        "bbox_cx_cy_w_h": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]] 
-        }
-    }
