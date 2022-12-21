@@ -39,3 +39,27 @@ pip3 install -r requirements.txt
 
 python3 run.py
 ```
+
+Note that in case you are using the backend as a service, you should use:
+```bash
+
+sudo nano /lib/systemd/system/waste-reduction-backend.service
+
+[Unit]
+Description=Waste Reduction Backend Service
+After=network-online.target
+
+[Service]
+ExecStart=/home/ubuntu/waste_reduction_api_backend/src/start.sh
+User=ubuntu
+
+[Install]
+WantedBy=multi-user.target
+
+
+sudo systemctl daemon-reload
+sudo systemctl enable waste-reduction-backend.service
+sudo systemctl start waste-reduction-backend.service
+sudo systemctl status waste-reduction-backend.service
+```
+
