@@ -20,7 +20,7 @@ else:
 
 ## Building the DB connection string
 class BaseConfig(object):
-    DB_NAME = "WasteReduction"
+    DB_NAME = "waste_reduction"
     DB_USER = _db_user
     DB_PASS = _db_pass
     DB_PORT = 5432
