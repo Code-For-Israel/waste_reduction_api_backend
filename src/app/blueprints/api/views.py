@@ -1,7 +1,11 @@
 from app.models import Track
 from app.models import db
+from app.mqtt import convert_to_mqtt_data
+from app.mqtt import publish_data_to_mqtt_server
 from flask import request, jsonify, Blueprint
-import logging, json, re
+import logging
+import json
+import re
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -15,21 +19,31 @@ api = Blueprint('api', __name__)
 def validate():
     return "All good!"
 
-# method for getting info from the inferenca server
+
+# method for getting info from the inference server
 @api.route('/', methods=['POST'])
 def event():
     details = request.get_json()
     details_dict = json.loads(details)
     print(type(details_dict))
     print(f"\n\nStart parsing data\n\n")
+    mqtt_data = list()
     for detection_details in details_dict['object_detection_data']:
         parsed_data = ParsingData(detection_details)
-        parsed_data.parsing_data_for_db()
+        cam, bbox_data, time, s3 = parsed_data.parsing_data_for_db()
         print("\nData pushed to db perfectly \n")
-        parsed_data.push_data_to_db()
+        id_number = parsed_data.push_data_to_db()
+        if bbox_data is not None:
+            for idx, detection in enumerate(bbox_data):
+                mqtt_dict = convert_to_mqtt_data(cam, id_number - len(bbox_data) + idx + 1, detection, time, s3)
+                if mqtt_dict is not None:
+                    mqtt_data.append(mqtt_dict)
+    publish_data_to_mqtt_server(mqtt_data=mqtt_data)
+    print("\nData was published to mqtt server perfectly \n")
 
     return jsonify(details_dict)
-    
+
+
 class ParsingData:
     
     def __init__(self, detection_details):
@@ -40,8 +54,8 @@ class ParsingData:
         self.image_serial = str
         self.s3_uri = str 
         self.bbox_details = None
-        
-        
+
+
    #Parsing data from Json to db format
     def parsing_data_for_db(self):
         self.axtract_name_date_time()
@@ -49,16 +63,17 @@ class ParsingData:
         self.camera_name = self.detection_details['camera_name']
         self.s3_uri = self.detection_details['s3_uri']
         print(self.s3_uri, self.camera_id, self.image_serial, self.detection_time, self.bbox_details)
-        
-        
+        return self.camera_name, self.bbox_details, self.detection_time, self.s3_uri
+
+
     def axtract_name_date_time(self):
         splited_data = self.detection_details['image_id'].split('T')
         camera_id_date, time_data = splited_data[0], splited_data[1]
-        self.camera_id = camera_id_date[3:7] # axtracting image_serial
-        self.image_serial = camera_id_date[7:camera_id_date.index("_")] # axtracting camera id
+        self.camera_id = camera_id_date[3:7] # extracting image_serial
+        self.image_serial = camera_id_date[7:camera_id_date.index("_")] # extracting camera id
         match_str = re.search(r'\d{2}_\d{2}_\d{4}', camera_id_date)
         match_str = match_str.group() + " " + time_data
-        self.detection_time = datetime.strptime(match_str, "%d_%m_%Y %H_%M_%S")# axtracting datetime object
+        self.detection_time = datetime.strptime(match_str, "%d_%m_%Y %H_%M_%S") # extracting datetime object
         print("\nCamera id, image serial, detection time passed perfectly \n")
         
         
@@ -75,12 +90,15 @@ class ParsingData:
         if self.bbox_details is None:
             track = Track(self.detection_time, self.camera_id, self.camera_name, self.image_serial, self.s3_uri)
             db.session.add(track) 
-            db.session.commit() 
+            db.session.commit()
         else:
             for bbox_details in self.bbox_details:
                 track = Track(self.detection_time, self.camera_id, self.camera_name, self.image_serial, self.s3_uri, *list(bbox_details))
                 db.session.add(track) 
-                db.session.commit()     
+                db.session.commit()
+
+        db.session.refresh(track)
+        return track.id
         
                 
                 
