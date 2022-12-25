@@ -4,3 +4,5 @@ flask-restful==0.3.9
 flask-sqlalchemy==2.5.1
 sqlalchemy==1.4.40
 psycopg2-binary
+pendulum~=2.1.2
+paho-mqtt~=1.6.1
