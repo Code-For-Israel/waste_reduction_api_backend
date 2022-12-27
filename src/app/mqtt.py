@@ -7,10 +7,10 @@ def convert_to_mqtt_data(cam, id_number, detection, time, s3):
     truck = detection[0]
     probability = int(detection[1] * 100)
     id_number = id_number
-    time = pendulum.from_format(str(time), 'YYYY-MM-DD HH:mm:ss', tz='Europe/London').to_rfc850_string()
+    dt = pendulum.instance(time).in_tz('Israel').to_rfc850_string()
     if truck == 'covered':
-        mqtt_dict = {"topic": "Playground/ml/" + cam + "/Notifies",
-                     "message": {'id': id_number, 'p': probability, 'time': time, 's3': s3}}
+        mqtt_dict = {"topic": "Playground/ml/" + cam.replace(" ", "") + "/Notifies",
+                     "message": {'id': id_number, 'p': probability, 'time': dt, 's3': s3}}
         return mqtt_dict
     return None
 
