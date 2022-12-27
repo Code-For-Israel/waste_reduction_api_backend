@@ -51,8 +51,11 @@ class ParsingData:
         self.detection_time = str
         self.camera_id = str
         self.camera_name = str
+        self.camera_name_he = str
+        self.latitude = float
+        self.longitude = float
         self.image_serial = str
-        self.s3_uri = str 
+        self.s3_uri = str
         self.bbox_details = None
 
 
@@ -60,8 +63,11 @@ class ParsingData:
     def parsing_data_for_db(self):
         self.axtract_name_date_time()
         self.axtract_detection_data()
-        self.camera_name = self.detection_details['camera_name']
-        self.s3_uri = self.detection_details['s3_uri']
+        self.camera_name = self.detection_details['camera_name']['en']
+        self.camera_name_he = self.detection_details['camera_name']['he']
+        self.latitude = self.detection_details['coordinates']['latitude']
+        self.longitude = self.detection_details['coordinates']['longitude']
+        self.s3_uri = self.detection_details['s3_uri'] if self.detection_details['s3_uri'] != 'no_upload' else None
         print(self.s3_uri, self.camera_id, self.image_serial, self.detection_time, self.bbox_details)
         return self.camera_name, self.bbox_details, self.detection_time, self.s3_uri
 
@@ -88,12 +94,30 @@ class ParsingData:
     #Push data to db
     def push_data_to_db(self):
         if self.bbox_details is None:
-            track = Track(self.detection_time, self.camera_id, self.camera_name, self.image_serial, self.s3_uri)
-            db.session.add(track) 
+            track = Track(
+                self.detection_time,
+                self.camera_id,
+                self.camera_name,
+                self.camera_name_he,
+                self.latitude,
+                self.longitude,
+                self.image_serial,
+                self.s3_uri
+            )
+            db.session.add(track)
             db.session.commit()
         else:
             for bbox_details in self.bbox_details:
-                track = Track(self.detection_time, self.camera_id, self.camera_name, self.image_serial, self.s3_uri, *list(bbox_details))
+                track = Track(
+                    self.detection_time,
+                    self.camera_id,
+                    self.camera_name,
+                    self.camera_name_he,
+                    self.latitude,
+                    self.longitude,
+                    self.image_serial,
+                    self.s3_uri,
+                    *list(bbox_details))
                 db.session.add(track) 
                 db.session.commit()
 
